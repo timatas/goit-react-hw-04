@@ -1,0 +1,14 @@
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  padding: 80px 10px 20px 10px;
+  background-color: #585757c5;
+}
+
+.item {
+  max-width: 250px;
+  width: 100%;
+}
