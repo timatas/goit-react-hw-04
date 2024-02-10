@@ -4,9 +4,5 @@
   padding-bottom: 30px;
   font-size: 36px;
   font-weight: 700;
-  color: brown;
-}
-
-.iconError {
-  fill: brown;
+  color: red;
 }

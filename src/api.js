@@ -9,5 +9,5 @@ export const fetchPhotos = async (query, page) => {
     },
   });
 
-  return response.data.results;
+  return response.data;
 };

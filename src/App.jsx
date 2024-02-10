@@ -1,6 +1,5 @@
-import { RotatingLines } from "react-loader-spinner";
-import { Notify } from "notiflix/build/notiflix-notify-aio";
-import { Toaster } from "react-hot-toast";
+import Notiflix from "notiflix";
+import toast, { Toaster } from "react-hot-toast";
 import { nanoid } from "nanoid";
 import { useEffect, useState } from "react";
 
@@ -9,6 +8,7 @@ import { ImageGallery } from "./ImageGallery/ImageGallery";
 import { fetchPhotos } from "./api";
 import { LoadMoreBtn } from "./LoadMoreBtn/LoadMoreBtn";
 import { MessageNotFound } from "../src/ErrorMessage/ErrorMessage";
+import { Loader } from "./Loader/Loader";
 
 export const App = () => {
   const [query, setQuery] = useState("");
@@ -40,16 +40,23 @@ export const App = () => {
         // setCards([]); //щоб не бачити результат попереднього запиту
         const fetchedPhoto = await fetchPhotos(query.split("/")[1], page);
 
-        //if (fetchedPhoto.length === 0) {
-        //   <MessageNotFound />;
-        //return console.log("ERROR");
-        //} else {}
-        setCards((prevCards) => [...prevCards, ...fetchedPhoto]);
-        //      setCards(response.data.results);
+        if (fetchedPhoto.total_pages === page) {
+          setVisualBtn(false);
+          Notiflix.Notify.info("It`s end of search");
+        } else {
+          setVisualBtn(true);
+        }
 
-        setVisualBtn(fetchedPhoto.total_pages != page);
+        if (fetchedPhoto.results.length === 0) {
+          toast.error(`There is nothing for your request! Try again`);
+          return;
+        }
+
+        setCards((prevCards) => [...prevCards, ...fetchedPhoto.results]);
+        //      setCards(response.data.results);
       } catch (error) {
         setError(true);
+        setVisualBtn(false);
       } finally {
         setLoading(false); //"ховає" лоадінг при будь-якому результаті запиту
       }
@@ -61,27 +68,15 @@ export const App = () => {
     <>
       <SearchBar onSearch={ImageSearch} />
 
-      {loading && (
-        <RotatingLines
-          visible={true}
-          height="96"
-          width="96"
-          color="grey"
-          strokeWidth="5"
-          animationDuration="0.75"
-          ariaLabel="rotating-lines-loading"
-          wrapperStyle={{}}
-          wrapperClass=""
-        />
-      )}
+      {loading && <Loader />}
 
-      {error && Notify.failure(`ERROR! Bad request! Reload page please`)}
+      {error && <MessageNotFound />}
 
       {cards.length > 0 && <ImageGallery items={cards} />}
 
-      {visualBtn && !loading && <LoadMoreBtn clickBtn={handleLoadMore} />}
+      {visualBtn && !loading && <LoadMoreBtn onClick={handleLoadMore} />}
 
-      <Toaster position="top-right" />
+      <Toaster position="top-center" />
     </>
   );
 };
